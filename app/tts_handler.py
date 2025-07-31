@@ -2,7 +2,7 @@ from pathlib import Path
 import os,re,base64,subprocess,pydub
 from pydub import AudioSegment
 from openai import OpenAI
-from session_handler import delete_chunk_opus
+from app.session_handler import delete_chunk_opus
 from dotenv import load_dotenv
 load_dotenv()
 

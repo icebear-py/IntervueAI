@@ -23,16 +23,24 @@ class DatabaseHandler:
         if self.pool is not None:
             await self.pool.close()
 
-    async def create_user_db(self,email:str,name:str,):
+    async def create_user_db(self,email:str,name:str,credits:int):
         async with self.pool.acquire() as conn:
-            await conn.execute(
+            row = await conn.fetchrow(
                 """
                 INSERT INTO users (email, name, credits) 
-                VALUES ($1, $2, 1)
-                ON CONFLICT (email) DO NOTHING""",
+                VALUES ($1, $2, $3)
+                ON CONFLICT (email) DO NOTHING
+                RETURNING email
+                """,
                 email,
                 name,
+                credits
             )
+            return True if row else False
+
+    async def user_exits(self,email:str):
+        async with self.pool.acquire() as conn:
+            await conn.execute()
 
     async def create_session_db(self,session_id:str,email:str,scenario:str,company:str,role:str,language:str):
         async with self.pool.acquire() as conn:
@@ -79,8 +87,13 @@ class DatabaseHandler:
             )
             return [dict(row) for row in rows]
 
-
-
+    async def get_credits_db(self,email:str):
+        async with self.pool.acquire() as conn:
+            credits = await conn.fetchval(
+                """
+                SELECT credits from users where email = $1
+                """,email
+            )
     async def update_credits_db(self, user_email: str, credits: int):
         async with self.pool.acquire() as conn:
             updated = await conn.fetchval(
@@ -95,5 +108,4 @@ class DatabaseHandler:
 
 
 db = DatabaseHandler()
-
 

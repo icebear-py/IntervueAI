@@ -5,7 +5,7 @@ from app.database_handler import db
 import base64
 import uuid
 from app.session_handler import save_session_data,delete_chunk
-
+import base64
 router = APIRouter()
 
 @router.post("/acknowledge_chunk")
@@ -33,7 +33,6 @@ async def create_session(
         session_id = str(uuid.uuid4())
         resume_content = (await resume.read())
         resume_b64 = base64.b64encode(resume_content).decode('utf-8')
-
         data = {
             "session_id": session_id,
             "email": email,

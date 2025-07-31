@@ -19,15 +19,22 @@ def get_memory_path(session_id):
     return memory_dir
 
 def get_history(session_id):
-    path = os.path.join(get_memory_path(session_id), f"conversation.json")
+    path = os.path.join(get_memory_path(session_id), f"conversation.txt")
     if not os.path.exists(path):
         return []
     with open(path, "r") as f:
-        return json.load(f)
+        try:
+            if os.path.getsize(path) != 0:
+                return json.load(f)
+            else:
+                return []
+        except json.JSONDecodeError:
+            return []
+
 
 def update_history(session_id, history):
     os.makedirs(get_memory_path(session_id), exist_ok=True)
-    path = os.path.join(get_memory_path(session_id), f"conversation.json")
+    path = os.path.join(get_memory_path(session_id), f"conversation.txt")
     with open(path, "w") as f:
         json.dump(history, f, indent=2)
 
@@ -70,20 +77,19 @@ def interview_start(session_id, scenario, company, role, language, resume_conten
     history = get_history(session_id)
     if not history or history[0].get("role") != "system":
         system_prmpt = system_prompt(scenario, company, role, language, resume_content)
-        history.insert(0, {"role": "system", "content": system_prmpt})
-    history.append({"role": "user", "content": user_input})
-    update_history(session_id, history)
-    for chunk in interview_continue(session_id,history):
+        history.append({"role": "system", "content": system_prmpt})
+        update_history(session_id, history)
+    #history.append({"role": "user", "content": user_input}
+    for chunk in interview_continue(session_id,user_input):
         yield chunk
 
 
 def interview_end(session_id):
     history = get_history(session_id)
+    res_prompt = results_prompt()
+    history.append({"role": "system", "content": res_prompt})
     if not history:
         return {"message":"session is not created yet"}
-    res_prompt = results_prompt()
-    history.insert(0, {"role": "system", "content": res_prompt})
-    history.append({"role": "user", "content": "Tell me my performance"})
     openai = OpenAI(
         api_key=f"{DEEPINFRA_API_KEY}",
         base_url="https://api.deepinfra.com/v1/openai",

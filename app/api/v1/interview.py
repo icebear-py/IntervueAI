@@ -4,6 +4,9 @@ import base64,json
 from app.database_handler import db
 from app.llm_handler import interview_start,interview_continue,interview_end,get_history
 from app.session_handler import get_session_data,save_session_data,delete_session
+import PyPDF2
+from io import BytesIO
+
 router = APIRouter()
 
 
@@ -13,9 +16,19 @@ def check():
 
 
 @router.post("/start_interview")
-async def start_interview(session_id: str, user_input: str):
+async def start_interview(request: Request):
+    data = await request.json()
+    session_id = data.get("session_id")
+    user_input = data.get("user_input")
+    if not session_id:
+        return JSONResponse({"message":"session_id is missing"})
     try:
         session = get_session_data(session_id)
+        resume_bytes = base64.b64decode(session["resume_content"])
+        pdf_reader = PyPDF2.PdfReader(BytesIO(resume_bytes))
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text() or ""
         if not session:
             raise HTTPException(status_code=400, detail="Session is not created yet.")
 
@@ -26,10 +39,10 @@ async def start_interview(session_id: str, user_input: str):
                 company=session["company"],
                 role=session["role"],
                 language=session["language"],
-                resume_content=base64.b64encode(session["resume_content"]),
+                resume_content=text,
                 user_input=user_input
             )
-            session.pop("resume_content", None)
+            #session.pop("resume_content", None)
             save_session_data(session_id, session)
         return StreamingResponse(stream_response(), media_type="text/plain")
     except Exception as e:
@@ -37,7 +50,12 @@ async def start_interview(session_id: str, user_input: str):
         raise HTTPException(status_code=500, detail="Interview start failed.")
 
 @router.post("/continue_interview")
-async def continue_interview(session_id: str, user_input: str):
+async def continue_interview(request: Request):
+    data = await request.json()
+    session_id = data.get("session_id")
+    user_input = data.get("user_input")
+    if not session_id:
+        return JSONResponse({"message":"session_id is missing"})
     #print(session_id, user_input)
     try:
         def stream_response():
@@ -51,12 +69,22 @@ async def continue_interview(session_id: str, user_input: str):
 
 
 @router.post("/end_interview")
-async def end_interview(session_id: str, email:str):
+async def end_interview(request:Request):
+    data = await request.json()
+    session_id = data.get("session_id")
+    email = data.get("email")
+    #print(session_id,email)
+    if not session_id:
+        return JSONResponse({"message":"session_id is missing"})
     try:
         content = interview_end(session_id)
-        convo = {"chat_history":get_history(session_id)}
+        history = get_history(session_id)
+        history = [i for i in history if i.get('role') != "system"]
+        conversation = {"chat_history":history}
         results = {"results":content}
-        await db.save_history_db(session_id,email,convo,results)
+        await db.save_history_db(session_id,email,conversation,results)
+        current_credits = await db.get_current_credits_db(email)
+        await db.update_credits_db(email,current_credits-1)
         delete_session(session_id)
         return {'status':True,'message':'Show results now.'}
     except:
@@ -64,7 +92,12 @@ async def end_interview(session_id: str, email:str):
 
 
 @router.post("/show_results")
-async def show_results(session_id: str,ema):
+async def show_results(request: Request):
+    data = await request.json()
+    session_id = data.get("session_id")
+    email = data.get("email")
+    if not session_id:
+        return JSONResponse({"message": "session_id is missing"})
     try:
         delete_session(session_id)
         return {'status':True,'message':'Show results now.'}
