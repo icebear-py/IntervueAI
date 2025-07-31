@@ -1,0 +1,5 @@
+huggingface_hub
+fastapi~=0.95.2
+huggingface-hub~=0.34.1
+python-dotenv~=1.0.0
+uuid~=1.30
