@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException,Request
 from fastapi.responses import JSONResponse,StreamingResponse
 import base64,json
 from app.database_handler import db
+from app.results_handler import show_results
 from app.llm_handler import interview_start,interview_continue,interview_end,get_history
 from app.session_handler import get_session_data,save_session_data,delete_session
 import PyPDF2
@@ -93,17 +94,14 @@ async def end_interview(request:Request):
 
 
 @router.post("/show_results")
-async def show_results(request: Request):
+async def display_results(request: Request):
     data = await request.json()
-    try:
-        session_id = data.get("session_id")
-    except:
-        session_id = None
+    session_id = data.get("session_id") if data.get("session_id") else ''
     email = data.get("email")
-
+    result = await show_results(email,session_id)
     try:
         delete_session(session_id)
-        return {'status':True,'message':'Show results now.'}
+        return result
     except:
         raise HTTPException(status_code=500, detail="Showing results failed.")
 

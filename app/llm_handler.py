@@ -58,7 +58,9 @@ def interview_continue(session_id: str,user_input:str):
         for chunk in stream:
             content = chunk.choices[0].delta.content
             if content:
-                if content != 'DONE':
+                if 'INTERVIEW_END'in str(content):
+                    return json.dumps({"text": "INTERVIEW_END", "audio": "INTERVIEW_END"})
+                elif content != 'DONE':
                     collected += content
                     buffered += content
                     if is_speakable(content):
@@ -88,7 +90,7 @@ def interview_end(session_id):
     history = get_history(session_id)
     res_prompt = results_prompt()
     history.append({"role": "system", "content": res_prompt})
-    history.append({"role": "user", "content": "Tell me my performance"})
+    #history.append({"role": "user", "content": "How did i perform?"})
     if not history:
         return {"message":"session is not created yet"}
     #print(history)
@@ -111,21 +113,5 @@ if __name__ == "__main__":
     #generate_audio('21095ab9-05c5-47d2-b965-c23aee6fd23e',0,'Hello my name is nothing, how are you?')
     print(interview_end('e5d645de-b62a-4a21-af51-f2782d79414b'))
 
-'''    reply = interview_continue(
-        session_id='test-1234',
-        user_input='heye',
-    )
-    for chunk in reply:
-        print(chunk, end="", flush=True)'''
-
-'''    reply = interview_start(
-        session_id="test-1234",
-        scenario="1:1 technical interview",
-        company="OpenAI",
-        role="ML Engineer",
-        language="English",
-        resume_content="Experience with Python, Transformers, FastAPI.",
-        user_input="Hello!"
-    )'''
 
 

@@ -59,13 +59,20 @@ class DatabaseHandler:
             )
             return session_id
 
-    async def get_session_db(self, session_id:str, user_email:str):
+    async def get_session_info(self, session_id:str):
         async with self.pool.acquire() as conn:
             session = await conn.fetchrow(
-                "SELECT * FROM sessions where session_id = $1 AND user_email = $2",session_id,user_email
+                "SELECT * FROM sessions where session_id = $1",session_id
             )
             return dict(session) if session else None
 
+    async def get_sessions_by_user(self, email):
+        async with self.pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT * FROM sessions WHERE user_email = $1",
+                email
+            )
+            return [dict(row) for row in rows]
 
     async def save_history_db(self,session_id:str, user_email:str, conversation:dict, results:dict):
         async with self.pool.acquire() as conn:
@@ -80,19 +87,21 @@ class DatabaseHandler:
                 json.dumps(results)
             )
 
-    async def get_results_db(self, session_id, email):
+    async def get_session_results(self, session_id):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(
-                "SELECT * FROM history WHERE session_id = $1 AND user_email = $2", session_id , email
+            row = await conn.fetchrow(
+                "SELECT results FROM history WHERE session_id = $1", session_id
             )
-            return [dict(row) for row in rows]
+            return dict(row) if row else None
 
-    async def get_all_results_db(self, email):
+    async def get_session_history(self, session_id):
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(
-                "SELECT * FROM history WHERE email = $1", email
+            row = await conn.fetchrow(
+                "SELECT history FROM history WHERE session_id = $1",
+                session_id
             )
-            return [dict(row) for row in rows]
+            return dict(row) if row else None
+
 
     async def get_credits_db(self,email:str):
         async with self.pool.acquire() as conn:
