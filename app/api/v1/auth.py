@@ -21,9 +21,9 @@ async def auth(request: Request):
         idinfo = id_token.verify_oauth2_token(token, grequests.Request(), CLIENT_ID)
         name = idinfo.get("name") or ""
         email = idinfo['email']
-        created = await db.create_user_db(email,name)
+        created = await db.create_user_db(email,name,credits=3)
         mssg = "Registered successfully" if created else "Logged in successfully"
-        credits = await db.get_credits_db(email)
-        return JSONResponse({'name':name,'email':email,'credits':credits,'mssg':mssg})
+        creds = await db.get_credits_db(email)
+        return JSONResponse({'name':name,'email':email,'credits':creds,'mssg':mssg})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

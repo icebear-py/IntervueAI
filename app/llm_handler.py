@@ -88,8 +88,10 @@ def interview_end(session_id):
     history = get_history(session_id)
     res_prompt = results_prompt()
     history.append({"role": "system", "content": res_prompt})
+    history.append({"role": "user", "content": "Tell me my performance"})
     if not history:
         return {"message":"session is not created yet"}
+    #print(history)
     openai = OpenAI(
         api_key=f"{DEEPINFRA_API_KEY}",
         base_url="https://api.deepinfra.com/v1/openai",
@@ -107,7 +109,7 @@ def interview_end(session_id):
 
 if __name__ == "__main__":
     #generate_audio('21095ab9-05c5-47d2-b965-c23aee6fd23e',0,'Hello my name is nothing, how are you?')
-    print(interview_end('124cdbb5-21c3-4c18-afb4-850d7a81d655'))
+    print(interview_end('e5d645de-b62a-4a21-af51-f2782d79414b'))
 
 '''    reply = interview_continue(
         session_id='test-1234',

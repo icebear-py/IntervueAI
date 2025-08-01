@@ -77,13 +77,14 @@ async def end_interview(request:Request):
     if not session_id:
         return JSONResponse({"message":"session_id is missing"})
     try:
-        content = interview_end(session_id)
+        content = str(interview_end(session_id))
         history = get_history(session_id)
         history = [i for i in history if i.get('role') != "system"]
         conversation = {"chat_history":history}
         results = {"results":content}
+        #print(conversation,'\n\n\n',results)
         await db.save_history_db(session_id,email,conversation,results)
-        current_credits = await db.get_current_credits_db(email)
+        current_credits = await db.get_credits_db(email)
         await db.update_credits_db(email,current_credits-1)
         delete_session(session_id)
         return {'status':True,'message':'Show results now.'}
@@ -94,12 +95,15 @@ async def end_interview(request:Request):
 @router.post("/show_results")
 async def show_results(request: Request):
     data = await request.json()
-    session_id = data.get("session_id")
+    try:
+        session_id = data.get("session_id")
+    except:
+        session_id = None
     email = data.get("email")
-    if not session_id:
-        return JSONResponse({"message": "session_id is missing"})
+
     try:
         delete_session(session_id)
         return {'status':True,'message':'Show results now.'}
     except:
         raise HTTPException(status_code=500, detail="Showing results failed.")
+

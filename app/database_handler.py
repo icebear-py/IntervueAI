@@ -17,7 +17,7 @@ class DatabaseHandler:
 
     async def connect(self):
         if self.pool is None:
-            self.pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context)
+            self.pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context, statement_cache_size=0)
 
     async def disconnect(self):
         if self.pool is not None:
@@ -71,7 +71,7 @@ class DatabaseHandler:
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO history (session_id, user_email, conversation, results)
+                INSERT INTO history (session_id, user_email, history, results)
                 VALUES ($1, $2, $3::jsonb, $4::jsonb)
                 """,
                 session_id,
@@ -80,10 +80,17 @@ class DatabaseHandler:
                 json.dumps(results)
             )
 
-    async def get_history_db(self, session_id):
+    async def get_results_db(self, session_id, email):
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(
-                "SELECT * FROM history WHERE session_id = $1", session_id
+                "SELECT * FROM history WHERE session_id = $1 AND user_email = $2", session_id , email
+            )
+            return [dict(row) for row in rows]
+
+    async def get_all_results_db(self, email):
+        async with self.pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT * FROM history WHERE email = $1", email
             )
             return [dict(row) for row in rows]
 
@@ -94,6 +101,8 @@ class DatabaseHandler:
                 SELECT credits from users where email = $1
                 """,email
             )
+            return credits
+
     async def update_credits_db(self, user_email: str, credits: int):
         async with self.pool.acquire() as conn:
             updated = await conn.fetchval(
