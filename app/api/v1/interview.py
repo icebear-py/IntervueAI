@@ -36,7 +36,6 @@ async def start_interview(request: Request):
             text += page.extract_text() or ""
         if not session:
             raise HTTPException(status_code=400, detail="Session is not created yet.")
-
         def stream_response():
             yield from interview_start(
                 session_id=session_id,
@@ -47,7 +46,7 @@ async def start_interview(request: Request):
                 resume_content=text,
                 user_input=user_input
             )
-            #session.pop("resume_content", None)
+            session.pop("resume_content", None)
             save_session_data(session_id, session)
         return StreamingResponse(stream_response(), media_type="text/plain")
     except Exception as e:
