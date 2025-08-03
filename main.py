@@ -35,10 +35,3 @@ app.include_router(auth.router,prefix="/api/v1")
 async def start():
     return {'message':'API is live master.'}
 
-@app.middleware("http")
-async def log_requests(request, call_next):
-    print(f"➡️  Request: {request.method} {request.url}")
-    response = await call_next(request)
-    print(f"⬅️  Response status: {response.status_code}")
-    return response
-
