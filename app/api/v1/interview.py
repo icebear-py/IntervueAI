@@ -20,10 +20,14 @@ def check():
 async def start_interview(request: Request):
     data = await request.json()
     session_id = data.get("session_id")
+    email = data.get("email")
     user_input = data.get("user_input")
     if not session_id:
         return JSONResponse({"message":"session_id is missing"})
     try:
+        current_credits = await db.get_credits_db(email)
+        new_credits = max(0, current_credits - 1)
+        await db.update_credits_db(email, new_credits)
         session = get_session_data(session_id)
         resume_bytes = base64.b64decode(session["resume_content"])
         pdf_reader = PyPDF2.PdfReader(BytesIO(resume_bytes))
@@ -85,21 +89,20 @@ async def end_interview(request:Request):
         results = {"results":content}
         #print(conversation,'\n\n\n',results)
         await db.save_history_db(session_id,email,conversation,results)
-        current_credits = await db.get_credits_db(email)
-        await db.update_credits_db(email,current_credits-1)
         delete_session(session_id)
         return {'status':True,'message':'Show results now.'}
-    except:
+    except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=500, detail="Interview ending failed.")
 
 
 @router.post("/show_results")
 async def display_results(request: Request):
-    data = await request.json()
-    session_id = data.get("session_id") if data.get("session_id") else ''
-    email = data.get("email")
-    result = await show_results(email,session_id)
     try:
+        data = await request.json()
+        session_id = data.get("session_id") if data.get("session_id") else ''
+        email = data.get("email")
+        result = await show_results(email,session_id)
         delete_session(session_id)
         return result
     except:

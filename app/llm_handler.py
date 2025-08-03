@@ -9,7 +9,7 @@ load_dotenv()
 
 DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")
 DEEPINFRA_URL = "https://api.deepinfra.com/v1/openai/chat/completions"
-MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.3"
+MODEL_NAME = os.getenv("MODEL_NAME")
 
 BASE_DIR = Path(__file__).parent.resolve() / "sessions"
 

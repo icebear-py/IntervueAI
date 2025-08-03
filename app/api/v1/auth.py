@@ -27,3 +27,13 @@ async def auth(request: Request):
         return JSONResponse({'name':name,'email':email,'credits':creds,'mssg':mssg})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/get_credits")
+async def get_credits(request: Request):
+    data = await request.json()
+    email = data.get("email")
+    try:
+        credits = await db.get_credits_db(email)
+        return {'email':email,'credits':credits}
+    except:
+        raise HTTPException(status_code=500, detail="Failed to fetch credits.")

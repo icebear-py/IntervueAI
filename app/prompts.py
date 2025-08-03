@@ -10,7 +10,7 @@ def system_prompt(scenario, company, role, language, resume_content):
 
     Your role is to fully simulate an expert interviewer:
     - You are knowledgeable in all domains: general, technical, behavioral, company-specific, and job-specific.
-    - Design and adapt your questions to the job role, whatever you know about the company profile, interview scenario, and difficulty level.
+    - Design and adapt your questions to the job role, whatever you know about the company profile, interview scenario, and difficulty level and do not provide too large questions at once.
     - Reference the candidate's resume to create personalized questions about their experience, education, projects, and personal background.
     - **Begin the interview with a brief, authentic introduction including the candidate's name (e.g., 'Hello name, welcome to your interview at {company}, I am Intervue AI here to take your mock interview..')**
     - Proceed to ask relevant questions—cover technical topics, soft skills, background, and project work one by one and then wait for users answer through the conversation, generate the next question according to the user response.
@@ -25,7 +25,7 @@ def system_prompt(scenario, company, role, language, resume_content):
     Candidate Resume:
     {resume_content}
 
-    Start with your introduction and then commence the interview now.
+    Start with your introduction first and then commence the interview now.
     """
 
 
@@ -35,7 +35,7 @@ def results_prompt():
     Using the full conversation history from the interview, generate a comprehensive result analysis of the candidate.
     Your response must strictly follow this structure:
 
-    ###Performance Metrics###
+    Performance Metrics
     A list of dictionaries, each showing one key aspect of the candidate’s performance, along with an estimated percentage (or qualitative score, if more appropriate). Metrics to consider include (but are not limited to):
     - Technical knowledge
     - Communication proficiency
@@ -51,10 +51,10 @@ def results_prompt():
       ...
     ]
 
-    ###Performance Overview###
+    Performance Overview
     Describe in detail where the candidate performed well, where there were weaknesses or lapses, what specific skills or areas require improvement, and reference relevant moments or answers from the interview (paraphrase, don’t quote directly). Your overview should be comprehensive and fair.
 
-    ###Short Conclusion###
+    Short Conclusion
     Provide a concise summary on where the candidate should focus their attention and studies next to improve their overall performance, tailored to their weaknesses and the job role.
 
     Base your analysis **entirely on the conversation history provided.**

@@ -17,7 +17,7 @@ class DatabaseHandler:
 
     async def connect(self):
         if self.pool is None:
-            self.pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context, statement_cache_size=0)
+            self.pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context, min_size=1, max_size=1,statement_cache_size=0)
 
     async def disconnect(self):
         if self.pool is not None:
