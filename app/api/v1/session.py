@@ -1,4 +1,4 @@
-from fastapi import APIRouter,File,UploadFile, Form
+from fastapi import APIRouter,File,UploadFile, Form, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from app.database_handler import db
@@ -8,12 +8,12 @@ import base64
 router = APIRouter()
 
 @router.post("/acknowledge_chunk")
-def delete_chunk(
-        session_id: str,
-        chunk_num: int
-):
+async def delete_chunk(request:Request):
     try:
-        delete_chunk(session_id,chunk_num)
+        data = await request.json()
+        session_id = data.get("session_id")
+        chunk_id = data.get("chunk")
+        await delete_chunk(session_id,chunk_id)
         return JSONResponse({'message':'chunk deleted from buffer.'})
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

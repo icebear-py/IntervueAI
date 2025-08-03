@@ -25,7 +25,7 @@ def save_session_data(session_id, data):
 
 def delete_chunk(session_id, chunk_num):
     chunk_path = BASE_DIR / session_id / "audio" / f"chunk{chunk_num}.webm"
-    print(chunk_path)
+    #print(chunk_path)
     if chunk_path.exists():
         chunk_path.unlink()
 
