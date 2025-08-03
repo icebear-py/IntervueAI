@@ -2,7 +2,6 @@ from fastapi import APIRouter,File,UploadFile, Form
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from app.database_handler import db
-import base64
 import uuid
 from app.session_handler import save_session_data,delete_chunk
 import base64

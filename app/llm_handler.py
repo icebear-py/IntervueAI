@@ -65,7 +65,7 @@ def interview_continue(session_id: str,user_input:str):
                     buffered += content
                     if is_speakable(content):
                         audio = generate_audio(session_id,chunk_num,buffered)
-                        yield json.dumps({"text":buffered,"audio":audio}) + "\n"
+                        yield json.dumps({"chunk":chunk_num,"text":buffered,"audio":audio}) + "\n"
                         chunk_num += 1
                         buffered = ""
 

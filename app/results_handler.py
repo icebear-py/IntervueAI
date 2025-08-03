@@ -1,5 +1,4 @@
 import json
-
 from app.database_handler import db
 
 async def show_results(email:str,session_id):
