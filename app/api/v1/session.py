@@ -7,15 +7,21 @@ from app.session_handler import save_session_data,delete_chunk
 import base64
 router = APIRouter()
 
+
 @router.post("/acknowledge_chunk")
-async def delete(request:Request):
+async def acknowledge_chunk(request: Request):
     try:
         data = await request.json()
         session_id = data.get("session_id")
         chunk_id = data.get("chunk")
-        await delete_chunk(session_id,chunk_id)
-        return JSONResponse({'message':'chunk deleted from buffer.'})
+        #print(session_id,chunk_id)
+        if not session_id:
+            #print('error')
+            raise HTTPException(status_code=400, detail="Missing session_id or chunk")
+        delete_chunk(session_id, chunk_id)
+        return {"message": "chunk deleted from buffer."}
     except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 
