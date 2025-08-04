@@ -8,7 +8,7 @@ import base64
 router = APIRouter()
 
 @router.post("/acknowledge_chunk")
-async def delete_chunk(request:Request):
+async def delete(request:Request):
     try:
         data = await request.json()
         session_id = data.get("session_id")
