@@ -24,10 +24,10 @@ export default function Signup() {
       if (window.google) {
         window.google.accounts.id.initialize({
           client_id: '972013465129-qdbier183udsv2p3fdiqlf07n7q3as26.apps.googleusercontent.com',
-          callback: (response) => {
+          callback: (response: google.accounts.id.CredentialResponse) => {
             console.log("Google Response:", response);
             console.log('Script loaded. window.google:', window.google);
-setTimeout(() => {
+            setTimeout(() => {
             fetch(`${API_BASE_URL}api/v1/gauth`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
