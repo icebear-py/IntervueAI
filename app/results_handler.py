@@ -35,7 +35,7 @@ async def show_results(email:str,session_id):
                     "history": his["chat_history"],
                     "results": res["results"]
                 })
-                print(all_results)
+                #print(all_results)
             return all_results
     except Exception as e:
         print(f"Error in show_results: {str(e)}")
