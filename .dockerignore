@@ -1,0 +1,8 @@
+Dockerfile
+.dockerignore
+.git
+.gitignore
+frontend/
+README.md
+.vscode/
+*.env
