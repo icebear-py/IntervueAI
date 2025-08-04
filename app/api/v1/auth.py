@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
+DEFAULT_CREDITS = os.getenv('DEFAULT_CREDITS')
 router = APIRouter()
 
 
@@ -21,7 +22,7 @@ async def auth(request: Request):
         idinfo = id_token.verify_oauth2_token(token, grequests.Request(), CLIENT_ID)
         name = idinfo.get("name") or ""
         email = idinfo['email']
-        created = await db.create_user_db(email,name,credits=3)
+        created = await db.create_user_db(email,name,credits=DEFAULT_CREDITS)
         mssg = "Registered successfully" if created else "Logged in successfully"
         creds = await db.get_credits_db(email)
         return JSONResponse({'name':name,'email':email,'credits':creds,'mssg':mssg})
