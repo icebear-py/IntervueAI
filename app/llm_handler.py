@@ -90,7 +90,7 @@ def interview_end(session_id):
     history = get_history(session_id)
     res_prompt = results_prompt()
     history.append({"role": "system", "content": res_prompt})
-    #history.append({"role": "user", "content": "How did i perform?"})
+    history.append({"role": "user", "content": "How did i perform?"})
     if not history:
         return {"message":"session is not created yet"}
     #print(history)

@@ -3,7 +3,7 @@ from app.api.v1 import interview
 from app.api.v1 import session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api.v1 import database
+from app.api.v1 import credits
 from app.api.v1 import auth
 from app.database_handler import db
 import os
@@ -28,7 +28,7 @@ app.add_middleware(
 
 app.include_router(interview.router, prefix="/api/v1")
 app.include_router(session.router, prefix="/api/v1")
-app.include_router(database.router,prefix="/api/v1")
+app.include_router(credits.router,prefix="/api/v1")
 app.include_router(auth.router,prefix="/api/v1")
 
 @app.get('/')
