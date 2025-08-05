@@ -15,7 +15,7 @@ async def get_api_key(x_api_key: str = Header(...)):
         )
 
 @router.get('/setcredits')
-async def setcredits(email: str, credits: int, master_api_key: str = Depends(get_api_key)):
+async def setcredits(email: str, credits: int, apikey: str = Depends(get_api_key)):
     if not email:
         raise HTTPException(status_code=400, detail="Missing email or credits parameter")
     try:
