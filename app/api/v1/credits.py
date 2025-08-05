@@ -7,19 +7,14 @@ router = APIRouter()
 
 MASTER_API_KEY = os.getenv("MASTER_API_KEY")
 
-async def get_api_key(x_api_key: str = Header(...)):
-    if not MASTER_API_KEY or x_api_key != MASTER_API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or Missing API Key"
-        )
 
 @router.get('/setcredits')
-async def setcredits(email: str, credits: int, apikey: str = Depends(get_api_key)):
-    if not email:
-        raise HTTPException(status_code=400, detail="Missing email or credits parameter")
+async def set_credits(email: str, credits: int, api_key: str):
+    if not api_key == MASTER_API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorised")
     try:
-        newcredits = await db.update_credits_db(email, credits)
+        new_credits = await db.update_credits_db(email, credits)
+        return JSONResponse(content={'status': f"Credits for {email} set to {new_credits}"})
     except ValueError:
         raise HTTPException(status_code=400, detail="Wrong request params")
-    return JSONResponse(content={'status': f"Credits for {email} set to {newcredits}"})
+
